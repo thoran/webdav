@@ -1,0 +1,12 @@
+# CHANGELOG
+
+## 20260325
+
+0.0.0: Initial release.
+
+1. + WebDAV client with 16 verbs
+  a. 8 WebDAV-specific verbs: copy, lock, mkcol, move, propfind, proppatch, report, unlock.
+  b. 8 standard HTTP verbs: delete, get, head, options, patch, post, put, and trace.
+2. + WebDAV::Response response object
+3. + WebDAV::MultiStatus response object
+4. + WebDAV::Error for 4xx/5xx responses
