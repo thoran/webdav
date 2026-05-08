@@ -1,6 +1,8 @@
 # WebDAV/MultiStatus.rb
 # WebDAV::MultiStatus
 
+require 'rexml/document'
+
 require_relative './Response'
 
 class WebDAV

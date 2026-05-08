@@ -1,5 +1,15 @@
 require_relative './lib/WebDAV/VERSION'
 
+class Gem::Specification
+  def dependencies=(gems)
+    gems.each{|gem| add_dependency(*gem)}
+  end
+
+  def development_dependencies=(gems)
+    gems.each{|gem| add_development_dependency(*gem)}
+  end
+end
+
 Gem::Specification.new do |spec|
   spec.name = 'webdav'
   spec.version = WebDAV::VERSION
@@ -13,17 +23,25 @@ Gem::Specification.new do |spec|
   spec.license = 'MIT'
 
   spec.required_ruby_version = '>= 2.7'
-
-  spec.add_dependency('http.rb')
+  spec.require_paths = ['lib']
 
   spec.files = [
     'webdav.gemspec',
+    'CHANGELOG',
     'Gemfile',
-    Dir['lib/**/*.rb'],
     'LICENSE',
+    'Rakefile',
     'README.md',
+    Dir['lib/**/*.rb'],
     Dir['test/**/*.rb']
   ].flatten
 
-  spec.require_paths = ['lib']
+  spec.dependencies = [
+    ['http.rb', '>= 0.18.0']
+  ]
+
+  spec.development_dependencies = %w{
+    minitest
+    rake
+  }
 end

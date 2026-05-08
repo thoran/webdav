@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 20260508
+
+0.1.0: Remove Net::HTTP::Report; now provided by http.rb 0.18.0.
+
+1. - lib/Net/HTTP/Report.rb: Now provided by http.rb 0.18.0.
+2. ~ lib/webdav.rb: - require_relative './Net/HTTP/Report'
+3. ~ webdav.gemspec: Pin http.rb dependency to >= 0.18.0; + development dependencies; + CHANGELOG and Rakefile to files; reformat.
+4. ~ .gitignore: Previously empty. Now with a default and comprehensive set of defaults.
+5. ~ WebDAV::VERSION: /0.0.0/0.1.0/
+6. ~ lib/webdav.rb: - require 'rexml/document'
+7. ~ lib/WebDAV/MultiStatus.rb: + require 'rexml/document'
+
 ## 20260325
 
 0.0.0: Initial release.

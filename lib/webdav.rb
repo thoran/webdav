@@ -6,7 +6,6 @@ require 'net/http'
 require 'rexml/document'
 require 'uri'
 
-require_relative './Net/HTTP/Report'
 require_relative './String/to_const'
 require_relative './WebDAV/Error'
 require_relative './WebDAV/MultiStatus'
