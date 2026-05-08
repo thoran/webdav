@@ -1,5 +1,15 @@
 # CHANGELOG
 
+# 20260508
+
+0.1.1: Reinstate Net::HTTP::Report.
+
+1. + lib/Net/HTTP/Report.rb: Reinstated after checking after it was incorrectly removed in 0.1.0. REPORT is from RFC 3253 (WebDAV versioning) and is not a core HTTP method.
+2. ~ lib/webdav.rb: + require_relative './Net/HTTP/Report'
+3. + test/Net/HTTP/Report_test.rb
+4. ~ WebDAV::VERSION: /0.1.0/0.1.1/
+5. ~ CHANGELOG: + 0.1.1
+
 ## 20260508
 
 0.1.0: Remove Net::HTTP::Report; now provided by http.rb 0.18.0.

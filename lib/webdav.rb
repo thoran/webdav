@@ -3,9 +3,9 @@
 
 gem 'http.rb'; require 'http.rb'
 require 'net/http'
-require 'rexml/document'
 require 'uri'
 
+require_relative './Net/HTTP/Report'
 require_relative './String/to_const'
 require_relative './WebDAV/Error'
 require_relative './WebDAV/MultiStatus'
@@ -25,7 +25,7 @@ class WebDAV
     handle_response(response)
   end
 
-  # Reports
+  # Versioning
 
   def report(path, body:, depth: '1')
     response = request(:report, path, body: body, headers: {'Depth' => depth})

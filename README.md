@@ -1,6 +1,7 @@
 # webdav
 
-A Ruby WebDAV client library.
+A WebDAV client library for Ruby.
+
 
 ## Installation
 
@@ -13,6 +14,7 @@ Or in your Gemfile:
 ```ruby
 gem 'webdav'
 ```
+
 
 ## Usage
 
@@ -80,7 +82,7 @@ response = dav.lock('/documents/report.txt', body: lock_body)
 dav.unlock('/documents/report.txt', token: 'urn:uuid:...')
 ```
 
-### REPORT
+### Reporting
 
 ```ruby
 response = dav.report('/calendars/user/', body: report_xml, depth: '1')
@@ -89,18 +91,37 @@ response.resources.each do |resource|
 end
 ```
 
-## Verbs
 
-### WebDAV (RFC 4918 / RFC 3253)
+## Methods
 
-- `propfind(path, body:, depth:)` — Retrieve properties
-- `proppatch(path, body:)` — Modify properties
-- `report(path, body:, depth:)` — Run a report query
-- `mkcol(path)` — Create a collection
-- `copy(path, to:, depth:, overwrite:)` — Copy a resource
-- `move(path, to:, overwrite:)` — Move a resource
-- `lock(path, body:)` — Lock a resource
-- `unlock(path, token:)` — Unlock a resource
+WebDAV extends HTTP with additional methods for distributed authoring. This gem provides all the methods defined in RFC 4918 ("HTTP Extensions for Web Distributed Authoring and Versioning") and the REPORT method from RFC 3253 ("Versioning Extensions to WebDAV"), which is essential for CalDAV and CardDAV queries.
+
+Ruby's standard library includes request classes for the RFC 4918 methods (Propfind, Proppatch, Mkcol, Copy, Move, Lock, Unlock) but not for REPORT. This gem defines `Net::HTTP::Report` to fill that gap.
+
+These methods are not provided by the `http.rb` gem, which deliberately limits itself to the core HTTP methods defined in RFC 9110 ("HTTP Semantics") and RFC 5789 ("PATCH Method for HTTP").
+
+### Properties (RFC 4918)
+
+- `propfind(path, body:, depth:)` — retrieve properties from a resource
+- `proppatch(path, body:)` — set or remove properties on a resource
+
+### Versioning (RFC 3253)
+
+- `report(path, body:, depth:)` — query for information about a resource; used by CalDAV and CardDAV
+
+### Collections (RFC 4918)
+
+- `mkcol(path)` — create a new collection (directory)
+
+### Namespace (RFC 4918)
+
+- `copy(path, to:, depth:, overwrite:)` — copy a resource
+- `move(path, to:, overwrite:)` — move a resource
+
+### Locking (RFC 4918)
+
+- `lock(path, body:)` — lock a resource
+- `unlock(path, token:)` — unlock a resource
 
 ### Standard HTTP
 
@@ -112,6 +133,7 @@ end
 - `delete(path)`
 - `options(path)`
 - `trace(path)`
+
 
 ## Responses
 
@@ -129,19 +151,30 @@ All methods return either a `WebDAV::Response` or a `WebDAV::MultiStatus`.
 
 `WebDAV::MultiStatus` additionally provides:
 
-- `resources`
-— an array of hashes, each with:
+- `resources` — an array of hashes, each with:
   - `href`
   - `properties`
   - `status`
+
 
 ## Errors
 
 Responses with status >= 400 raise `WebDAV::Error`, which has `code`, `message`, and `body`.
 
+
 ## Dependencies
 
 - [http.rb](https://github.com/thoran/http.rb)
+
+
+## Contributing
+
+1. Fork it [https://github.com/thoran/webdav/fork](https://github.com/thoran/webdav/fork)
+2. Create your feature branch (git checkout -b my-new-feature)
+3. Commit your changes (git commit -am 'Add some feature')
+4. Push to the branch (git push origin my-new-feature)
+5. Create a new pull request
+
 
 ## Licence
 
