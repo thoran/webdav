@@ -37,11 +37,12 @@ Gem::Specification.new do |spec|
   ].flatten
 
   spec.dependencies = [
-    ['http.rb', '>= 0.18.0']
+    ['http.rb'],
+    ['rexml']
   ]
 
-  spec.development_dependencies = %w{
-    minitest
-    rake
-  }
+  spec.development_dependencies = [
+    ['minitest', '~> 5.27'],
+    ['rake']
+  ]
 end

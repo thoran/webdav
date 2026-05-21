@@ -6,7 +6,7 @@ class WebDAV
     attr_reader :code, :message, :headers, :body
 
     def success?
-      code < 400
+      code >= 200 && code < 300
     end
 
     def etag

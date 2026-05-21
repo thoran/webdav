@@ -39,8 +39,20 @@ describe WebDAV::Response do
       _(response.success?).must_equal true
     end
 
+    it "returns false for 3xx responses" do
+      redirect_response = MockResponse.new(code: '302', message: 'Found', body: '')
+      r = WebDAV::Response.new(redirect_response)
+      _(r.success?).must_equal false
+    end
+
     it "returns false for 4xx responses" do
       error_response = MockResponse.new(code: '404', message: 'Not Found', body: '')
+      r = WebDAV::Response.new(error_response)
+      _(r.success?).must_equal false
+    end
+
+    it "returns false for 5xx responses" do
+      error_response = MockResponse.new(code: '500', message: 'Internal Server Error', body: '')
       r = WebDAV::Response.new(error_response)
       _(r.success?).must_equal false
     end

@@ -1,6 +1,18 @@
 # CHANGELOG
 
-# 20260508
+## 20260520
+
+0.1.2: Fix Response#success? to return true only for 2xx responses.
+
+1. ~ WebDAV::Response#success?: Was `code < 400` which incorrectly reported 1xx and 3xx as successful. Now `code >= 200 && code < 300`.
+2. ~ test/WebDAV/Response_test.rb: + tests for 3xx and 5xx behaviour.
+3. ~ webdav.gemspec: Remove http.rb version constraint (was `>= 0.18.0`; the original rationale, Net::HTTP::Report being in http.rb 0.18.0, was reverted in webdav 0.1.1 and http.rb 0.18.1).
+4. ~ webdav.gemspec: + rexml runtime dependency (default gem on Ruby 3+; required by WebDAV::MultiStatus).
+5. ~ webdav.gemspec: Pin minitest development dependency to `~> 5.27` (Minitest 6 split `minitest/mock` into a separate gem).
+6. ~ WebDAV::VERSION: /0.1.1/0.1.2/
+7. ~ CHANGELOG: + 0.1.2 entry
+
+## 20260508
 
 0.1.1: Reinstate Net::HTTP::Report.
 
