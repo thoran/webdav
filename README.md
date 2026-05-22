@@ -30,7 +30,14 @@ dav = WebDAV.new('https://dav.example.com/files/', username: 'user', password: '
 response = dav.propfind('/', depth: '1')
 response.resources.each do |resource|
   puts resource[:href]
-  puts resource[:properties]
+  resource[:propstats].each do |propstat|
+    puts propstat[:status]
+    propstat[:properties].each do |namespace, properties|
+      properties.each do |name, value|
+        puts "  #{namespace} #{name} = #{value}"
+      end
+    end
+  end
 end
 ```
 
@@ -92,6 +99,27 @@ end
 ```
 
 
+## Concepts
+
+WebDAV extends HTTP with a few ideas that don't have direct REST analogues. The ones below explain why the API is shaped the way it is.
+
+### Properties vs content
+
+A WebDAV resource has two faces. **Content** is what GET returns — the bytes of the file. **Properties** are metadata associated with the resource: display name, creation date, lock state, content type, and any custom properties the server defines. The same URL identifies both, but different verbs reach them — GET/PUT for content, PROPFIND/PROPPATCH for properties.
+
+### Collections and the trailing slash
+
+A **collection** is WebDAV's directory: a resource that contains other resources. MKCOL creates one. By convention, collection URLs end in `/` and ordinary resources don't; servers that care about the distinction will redirect or 404 if you get it wrong. The distinction matters because COPY, MOVE, and DELETE on a collection cascade to its children — which is also why those verbs can return 207 Multi-Status when children succeed and fail independently.
+
+### Why 207 Multi-Status exists
+
+HTTP assumes one request maps to one status. WebDAV breaks that assumption: PROPFIND on a folder asks about many resources at once; COPY of a tree may succeed on some children and fail on others. The 207 Multi-Status response code says "the request touched many things; here are per-thing outcomes." The XML body carries one `<d:response>` per affected resource. This gem returns those as `WebDAV::MultiStatus`; the `resources` accessor exposes the per-resource detail (see [Responses](#responses)).
+
+### Namespaces
+
+WebDAV properties are XML elements, and XML elements belong to namespaces. The core RFC 4918 properties live in the `DAV:` namespace. Extensions — CalDAV (`urn:ietf:params:xml:ns:caldav`), CardDAV, Exchange, ownCloud, custom server vocabularies — each define their own. Properties from different namespaces can share local names (`<d:displayname>` and `<x:displayname>` are different properties), so the parser preserves namespace URIs as the outer key in the properties hash.
+
+
 ## Methods
 
 WebDAV extends HTTP with additional methods for distributed authoring. This gem provides all the methods defined in RFC 4918 ("HTTP Extensions for Web Distributed Authoring and Versioning") and the REPORT method from RFC 3253 ("Versioning Extensions to WebDAV"), which is essential for CalDAV and CardDAV queries.
@@ -149,12 +177,108 @@ All methods return either a `WebDAV::Response` or a `WebDAV::MultiStatus`.
 - `content_type`
 - `success?`
 
+A `GET` response on the wire:
+
+```
+HTTP/1.1 200 OK
+Content-Type: text/plain
+Content-Length: 13
+ETag: "5d41402a"
+
+Hello, world.
+```
+
+Parses to:
+
+```ruby
+response.code          # => 200
+response.message       # => "OK"
+response.body          # => "Hello, world."
+response.etag          # => "\"5d41402a\""
+response.content_type  # => "text/plain"
+response.success?      # => true
+```
+
 `WebDAV::MultiStatus` additionally provides:
 
 - `resources` — an array of hashes, each with:
-  - `href`
-  - `properties`
-  - `status`
+  - `href` — the resource URL
+  - `propstats` — an array of `{properties:, status:}` hashes (PROPFIND / PROPPATCH / REPORT). May be empty when the response carries a response-level status instead.
+  - `status` — the response-level status string (COPY / MOVE / DELETE). `nil` when the response has propstats instead.
+
+Within a propstat, `properties` is a nested hash keyed first by XML namespace URI, then by local name. For example, a CalDAV calendar property appears as `propstat[:properties]['urn:ietf:params:xml:ns:caldav']['calendar-data']` and a DAV property as `propstat[:properties]['DAV:']['getetag']`. Keeping the namespace explicit prevents collisions between properties from different namespaces that share a local name.
+
+A PROPFIND response — properties grouped by namespace, status per propstat, response-level status `nil`. The wire XML:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<d:multistatus xmlns:d="DAV:" xmlns:c="urn:ietf:params:xml:ns:caldav">
+  <d:response>
+    <d:href>/calendar/event.ics</d:href>
+    <d:propstat>
+      <d:prop>
+        <d:getetag>"abc123"</d:getetag>
+        <c:calendar-data>BEGIN:VCALENDAR...</c:calendar-data>
+      </d:prop>
+      <d:status>HTTP/1.1 200 OK</d:status>
+    </d:propstat>
+    <d:propstat>
+      <d:prop>
+        <d:getctag/>
+      </d:prop>
+      <d:status>HTTP/1.1 404 Not Found</d:status>
+    </d:propstat>
+  </d:response>
+</d:multistatus>
+```
+
+Parses to:
+
+```ruby
+[
+  {
+    href: '/calendar/event.ics',
+    propstats: [
+      {
+        properties: {
+          'DAV:' => {'getetag' => '"abc123"'},
+          'urn:ietf:params:xml:ns:caldav' => {'calendar-data' => 'BEGIN:VCALENDAR...'}
+        },
+        status: 'HTTP/1.1 200 OK'
+      },
+      {
+        properties: {'DAV:' => {'getctag' => ''}},
+        status: 'HTTP/1.1 404 Not Found'
+      }
+    ],
+    status: nil
+  }
+]
+```
+
+A COPY / MOVE / DELETE on a collection where a child resource failed — the server returns 207 Multi-Status with one `<d:response>` per affected child, each carrying a response-level status rather than propstats. Single-resource lifecycle operations don't go through this path; they return a plain `WebDAV::Response` with the status code as the whole story. The wire XML:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<d:multistatus xmlns:d="DAV:">
+  <d:response>
+    <d:href>/dir/file.txt</d:href>
+    <d:status>HTTP/1.1 403 Forbidden</d:status>
+  </d:response>
+</d:multistatus>
+```
+
+Parses to:
+
+```ruby
+[
+  {
+    href: '/dir/file.txt',
+    propstats: [],
+    status: 'HTTP/1.1 403 Forbidden'
+  }
+]
+```
 
 
 ## Errors

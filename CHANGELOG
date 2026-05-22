@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 20260522
+
+0.2.0: Rewrite MultiStatus#parse; align dependencies with http.rb 1.0.0; document WebDAV concepts.
+
+1. ~ WebDAV::MultiStatus#parse: Walk propstat blocks individually; preserve per-propstat status; detect response-level status (for COPY/MOVE/DELETE); preserve namespace URIs on properties. Now private; resources remains the public accessor.
+2. ~ WebDAV::MultiStatus resource shape: Properties move from flat hash keyed by local name to nested hash keyed by namespace URI then local name. Resources now have :propstats (array of {properties:, status:}) and :status (response-level, may be nil) instead of a single :properties and :status pair.
+3. ~ test/WebDAV/MultiStatus_test.rb: Update existing tests for new shape; + tests for per-propstat status, response-level status, namespace preservation, and same-local-name collision across namespaces.
+4. ~ README.md: Document new MultiStatus#resources shape, with paired wire-XML and parsed-Ruby examples for both PROPFIND and collection-cascade Multi-Status; + WebDAV::Response wire example; + Concepts section (properties vs content, collections and the trailing slash, why 207 Multi-Status exists, namespaces).
+5. ~ webdav.gemspec: required_ruby_version />= 2.7/>= 3.2/; http.rb dependency /[]/['~> 1.0']/; minitest pin /'~> 5.27'/'~> 6.0'/; + minitest-mock (minitest 6 split it out).
+6. ~ WebDAV::VERSION: /0.1.2/0.2.0/
+7. ~ CHANGELOG: + 0.2.0 entry
+
 ## 20260520
 
 0.1.2: Fix Response#success? to return true only for 2xx responses.

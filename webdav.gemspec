@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
   spec.homepage = 'https://github.com/thoran/webdav'
   spec.license = 'MIT'
 
-  spec.required_ruby_version = '>= 2.7'
+  spec.required_ruby_version = '>= 3.2'
   spec.require_paths = ['lib']
 
   spec.files = [
@@ -37,12 +37,13 @@ Gem::Specification.new do |spec|
   ].flatten
 
   spec.dependencies = [
-    ['http.rb'],
+    ['http.rb', '~> 1.0'],
     ['rexml']
   ]
 
   spec.development_dependencies = [
-    ['minitest', '~> 5.27'],
+    ['minitest', '~> 6.0'],
+    ['minitest-mock'],
     ['rake']
   ]
 end
