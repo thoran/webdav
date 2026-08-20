@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 20260821
+
+0.2.1: + webdav.rb.gemspec, so that the gem resolves under both names.
+
+1. + webdav.rb.gemspec: the same code published as webdav.rb, caldav being published as caldav.rb. rubygems has no notion of an alias, so the two are separate gems which must be kept at the same version by hand.
+2. ~ webdav.gemspec: + a comment naming the second gemspec, this being the gem which already exists on rubygems.
+3. gem-publish 0.2.0 is what makes this work: gem build and gem push each take one file, so the earlier `gem build *.gemspec` built whichever the shell listed first and webdav.rb was never built at all.
+4. ~ WebDAV::VERSION: /0.2.0/0.2.1/
+
 ## 20260522
 
 0.2.0: Rewrite MultiStatus#parse; align dependencies with http.rb 1.0.0; document WebDAV concepts.

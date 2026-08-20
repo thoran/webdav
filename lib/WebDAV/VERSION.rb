@@ -2,5 +2,5 @@
 # WebDAV::VERSION
 
 class WebDAV
-  VERSION = '0.2.0'
+  VERSION = '0.2.1'
 end

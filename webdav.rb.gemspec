@@ -11,7 +11,7 @@ class Gem::Specification
 end
 
 Gem::Specification.new do |spec|
-  spec.name = 'webdav'
+  spec.name = 'webdav.rb'
   spec.version = WebDAV::VERSION
 
   spec.summary = "A Ruby WebDAV client library."
@@ -33,7 +33,7 @@ Gem::Specification.new do |spec|
     'LICENSE',
     'Rakefile',
     'README.md',
-    'webdav.gemspec',
+    'webdav.rb.gemspec',
   ].flatten
 
   spec.dependencies = [
