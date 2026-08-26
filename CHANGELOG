@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 20260826
+
+0.2.2: ~ Gemfile, which bundler has been unable to parse since 0.2.1.
+
+1. ~ Gemfile: /gemspec/gemspec name: 'webdav'/. The bare gemspec directive refuses outright where it finds more than one gemspec to choose from, and 0.2.1 added webdav.rb.gemspec beside webdav.gemspec without the Gemfile following. Either name resolves the same dependencies, the two files differing only in their own; the one already on rubygems is the one named.
+2. Nothing had reported it: the Rakefile is a plain rake/testtask with no bundler/setup, so rake test never goes through bundler and has gone on passing against whatever the system Ruby holds. http.rb, rexml, minitest, minitest-mock and rake are declared here and nowhere else, so from 20260821 to now bundler could resolve none of them.
+3. ~ WebDAV::VERSION: /0.2.1/0.2.2/
+
+
 ## 20260821
 
 0.2.1: + webdav.rb.gemspec, so that the gem resolves under both names.
