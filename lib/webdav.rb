@@ -10,6 +10,7 @@ require_relative './String/to_const'
 require_relative './WebDAV/Error'
 require_relative './WebDAV/MultiStatus'
 require_relative './WebDAV/Response'
+require_relative './WebDAV/VERSION'
 
 class WebDAV
 
